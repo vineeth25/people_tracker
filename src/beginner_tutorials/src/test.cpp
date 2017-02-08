@@ -14,13 +14,16 @@ class people
 {
     public:
 	people( const ros::Publisher& ID_pub)
-		:ID_pub_(ID_pub){
+		:ID_pub_(ID_pub)
+	{
+
 	}		
 
     void PeopleCallBack(const people_msgs::PositionMeasurementArray:: ConstPtr& msg)
     {
         current_time = ros::Time::now().toSec();
 		people_id ID;
+		
         for(int i = 1; i < msg->people.size(); i++)
         {
             person1_current_x =  msg->people[i].pos.x;
@@ -30,8 +33,9 @@ class people
             if(person1_store_id != person1_id)
             {
                 
-                check1 = samePersonCheck(person1_radius, person1_current_x, 
-					person1_current_y, person1_previous_x, person1_previous_y);
+                check1 = samePersonCheck( person1_radius, person1_current_x, 
+										 person1_current_y, person1_previous_x, 
+										 person1_previous_y );
             }
             if(check1 == false)
             {
@@ -44,7 +48,9 @@ class people
 				ID.person1_id = person1_id;
 			}
                
-            person1_radius = personCircle( person1_current_x, person1_current_y, person1_previous_x, person1_previous_y);
+            person1_radius = personCircle( person1_current_x, person1_current_y,
+							 			   person1_previous_x, 
+										   person1_previous_y );
                
             person2_current_x =  msg->people[i-1].pos.x;
             person2_current_y = msg->people[i-1].pos.y;
@@ -53,8 +59,9 @@ class people
             if(person2_store_id != person2_id )
             {
                                                             
-                check2 = samePersonCheck(person2_radius, person2_current_x, 
-					person2_current_y, person2_previous_x, person2_previous_y);
+                check2 = samePersonCheck( person2_radius, person2_current_x, 
+										  person2_current_y, person2_previous_x, 
+										  person2_previous_y );
             }
             if(check2 == false)
             {
@@ -68,17 +75,23 @@ class people
 			}
              
                
-            person2_radius = personCircle( person2_current_x, person2_current_y, person2_previous_x, person2_previous_y);
-            check = peopleCheck( person1_current_x, person1_current_y, person2_current_x, person2_current_y,person1_radius, person2_radius);
+            person2_radius = personCircle( person2_current_x, person2_current_y,
+								 		   person2_previous_x, 
+										   person2_previous_y);
+
+            check = peopleCheck( person1_current_x, person1_current_y, 
+								 person2_current_x, person2_current_y, 
+								 person1_radius, person2_radius);
                
             if( check == false)
             {
-                //ROS_INFO(" collision");
+                ID.person1_id = ID.person2_id;
                
             }
-           // ROS_INFO(" current: %s, before: %s ", ID.person1_id.c_str(),ID.person2_id.c_str());
+
 			ID.person1_X = person1_current_x;
 			ID.person1_Y = person1_current_y;
+
 			ID.person2_X = person2_current_x;
 			ID.person2_Y = person2_current_y;
 			ID_pub_.publish(ID);
@@ -88,6 +101,7 @@ class people
             person1_previous_x = person1_current_x;
             person1_previous_y = person1_current_y;
 			person1_store_radius = person1_radius;
+
             person2_store_id = person2_id;
             person2_previous_x = person2_current_x;
             person2_previous_y = person2_current_y;
@@ -99,30 +113,43 @@ class people
 
     double person1_current_x = 0.0;
     double person1_current_y = 0.0;
+
     double person1_previous_x = 0.0;       
     double person1_previous_y = 0.0;
+
     string person1_store_id = "";
     string person2_store_id = "";
+
     double person2_current_x = 0.0;
     double person2_current_y = 0.0;
+
     double person2_previous_x = 0.0;
     double person2_previous_y = 0.0;
-    double previous_x = 0.0;
-    double previous_y = 0.0;
-    string person1_id;
-    string person2_id ;
-    bool check;
-    bool check1;
-    bool check2;
-    int size = 0;
-    double person1_radius = 0.0;
-    double person2_radius = 0.0;
+
     double person1_store_radius = 0.0;
     double person2_store_radius = 0.0;
+
+	double person1_radius = 0.0;
+    double person2_radius = 0.0;
+
     double store_radius = 0.0;
     double current_time = 0.0;
     double store_time = 0.0;
+
+    double previous_x = 0.0;
+    double previous_y = 0.0;
+
+    string person1_id;
+    string person2_id ;
+
+    bool check;
+    bool check1;
+    bool check2;
+
+    int size = 0;
+    
     ros::Publisher ID_pub_;
+
 	people_id Change( string to, bool val)
 	{
 		people_id result;
@@ -137,12 +164,14 @@ class people
 		}
 	}
          
-    bool samePersonCheck( double PrevRadd, double currX, double currY, double prevX, double prevY)
+    bool samePersonCheck( double PrevRadd, double currX, double currY, 
+												double prevX, double prevY)
     {
-        double len = (pow( (currX - prevX),2)) + (pow( (currY - prevY),2));
+        double len = 0.0;
+		len = (pow( (currX - prevX),2)) + (pow( (currY - prevY),2));
 		len = sqrt(len);
 		len = abs(len);
-       return true;
+       	return true;
     }
                                          
     double personCircle( double xCurrVal, double yCurrVal, double
@@ -150,15 +179,17 @@ class people
     {
         double h = (xCurrVal + xPrevVal) / 2.0;
         double k = (yCurrVal + yPrevVal) / 2.0;
-        double r = (pow( (xPrevVal - h),2)) + (pow( (yPrevVal - k),2));
-        r = sqrt(r);
-		r = abs(r);
-        return r;
+        double rad = (pow( (xPrevVal - h),2)) + (pow( (yPrevVal - k),2));
+        rad = sqrt(rad);
+		rad = abs(rad);
+        return rad;
     }                             
      
-    bool peopleCheck( double xCurrVal, double yCurrVal, double xPrevVal, double yPrevVal, double currRad, double prevRad)
+    bool peopleCheck( double xCurrVal, double yCurrVal, double xPrevVal, 
+								double yPrevVal, double currRad, double prevRad)
     {
-        if( pow((xCurrVal - xPrevVal ),2) + pow((yCurrVal - yPrevVal),2)  <= pow((currRad + prevRad),2) )
+        if( pow((xCurrVal - xPrevVal ),2) + pow((yCurrVal - yPrevVal),2)  
+												<= pow((currRad + prevRad),2) )
         {
             return false;
         }
@@ -174,7 +205,8 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
 	ros::Publisher ID_pub = nh.advertise<people_id>("people_id",10);
     people ppl(ID_pub);
-    ros::Subscriber sub = nh.subscribe("people_tracker_measurements",1000, &people::PeopleCallBack,&ppl);
+    ros::Subscriber sub = nh.subscribe("people_tracker_measurements",1000, 
+												&people::PeopleCallBack,&ppl);
     ros::spin();
     return 0;
 }
