@@ -59,7 +59,7 @@ class people
             if(check2 == false)
             {
                   
-                people_id ID = Change( person2_store_id, true);
+                people_id ID = Change( person2_store_id, false);
                  
             }
             if(check2 == true)
@@ -77,6 +77,10 @@ class people
                
             }
            // ROS_INFO(" current: %s, before: %s ", ID.person1_id.c_str(),ID.person2_id.c_str());
+			ID.person1_X = person1_current_x;
+			ID.person1_Y = person1_current_y;
+			ID.person2_X = person2_current_x;
+			ID.person2_Y = person2_current_y;
 			ID_pub_.publish(ID);
           
         }
