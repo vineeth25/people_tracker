@@ -27,7 +27,7 @@ source ./devel/setup.bash
 rosrun rviz rviz  
 Set Fixed frame: base_laser_link  
 Add MarkerArray  
-Open a terminal and following the below commands
+Open a terminal and following the below commands  
 cd ~/catkin_ws  
 source ./devel/setup.bash  
 Rostopic list // check if people_msgs/PositionMeasurementArray is available  
